@@ -1446,7 +1446,9 @@ document.getElementById('printBtn').addEventListener('click', () => {
     const swUtm = latLngToUTM(bounds.getSouthWest().lat, bounds.getSouthWest().lng);
     const neUtm = latLngToUTM(bounds.getNorthEast().lat, bounds.getNorthEast().lng);
 
-    let legendHtml = '', allCount = 0;
+    const el = id => document.getElementById(id).textContent;
+
+    let legendHtml = '', allCount = 0, statsHtml = '';
 
     LAYERS.forEach(def => {
       const s = state[def.table];
@@ -1456,56 +1458,60 @@ document.getElementById('printBtn').addEventListener('click', () => {
       legendHtml += `<div style="display:flex;align-items:center;gap:6px;margin:2px 0"><span style="display:inline-block;width:20px;height:2px;${def.geomType==='polygon'?`background:${def.color}44;border:1px solid ${def.color};width:12px;height:12px;border-radius:2px`:dashStyle}"></span><span style="font-size:9px">${def.label}</span><span style="font-size:8px;color:#999">${s.featureCount} ent.</span></div>`;
     });
 
-    const printHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ficha Técnica · Geoportal</title>
+    const stats = [
+      { lbl:'Agua potable', val:el('statAgua') },
+      { lbl:'Alcantarillado', val:el('statAlcant') },
+      { lbl:'Red Energía Eléctrica', val:el('statElect') },
+      { lbl:'Recolección Basura', val:el('statBasura') },
+      { lbl:'Red Vial Cantonal', val:el('statVial') },
+      { lbl:'Catastro Rural', val:el('statCatastro') },
+    ];
+    stats.forEach(s => {
+      statsHtml += `<div class="row"><span class="lbl">${s.lbl}</span><span class="val">${s.val}</span></div>`;
+    });
+
+    const printHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte Geoportal</title>
     <style>
-      @page{size:A4 landscape;margin:.8cm;}
-      body{font-family:'Segoe UI',Arial,sans-serif;color:#111;font-size:8px;padding:0;margin:0;line-height:1.25;}
-      .head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1.5px solid #0f2a44;padding-bottom:3px;margin-bottom:6px;}
-      .head h1{margin:0;font-size:13px;color:#0f2a44;font-weight:600;letter-spacing:-.3px;}
-      .head .meta{text-align:right;font-size:7px;color:#777;white-space:nowrap;}
-      .map-wrap{text-align:center;margin:4px 0;border:1px solid #ccc;background:#fafafa;}
-      .map-wrap img{max-width:100%;height:auto;max-height:180px;display:block;margin:0 auto;}
+      @page{size:A4 portrait;margin:1cm;}
+      body{font-family:'Segoe UI',Arial,sans-serif;color:#111;font-size:9px;padding:0;margin:0;line-height:1.3;}
+      .head{text-align:center;border-bottom:2px solid #0f2a44;padding-bottom:5px;margin-bottom:8px;}
+      .head h1{margin:0;font-size:16px;color:#0f2a44;}
+      .head p{margin:2px 0 0;font-size:8px;color:#777;}
+      .map-wrap{text-align:center;margin:5px 0;border:1px solid #ccc;}
+      .map-wrap img{max-width:100%;height:auto;max-height:200px;}
       .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0;}
-      .box{border:1px solid #ddd;border-radius:3px;padding:5px 7px;background:#f8f9fa;}
-      .box h2{margin:0 0 3px;font-size:8px;color:#0f2a44;text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
-      .box .row{display:flex;justify-content:space-between;padding:1px 0;font-size:7.5px;border-bottom:1px dotted #e0e0e0;}
-      .box .row:last-child{border-bottom:none;}
-      .box .row .lbl{color:#555;}
-      .box .row .val{font-family:Consolas,'Courier New',monospace;color:#111;font-weight:500;}
-      table{width:100%;border-collapse:collapse;font-size:7px;margin:2px 0;}
-      th{background:#0f2a44;color:#fff;padding:2px 4px;text-align:left;font-size:7px;font-weight:500;}
-      td{padding:2px 4px;border-bottom:1px solid #e0e0e0;font-family:Consolas,'Courier New',monospace;font-size:7px;}
-      tr:last-child td{border-bottom:none;}
-      .ftr{text-align:center;font-size:6px;color:#999;margin-top:6px;border-top:1px solid #ddd;padding-top:3px;}
+      .box{border:1px solid #ddd;border-radius:4px;padding:6px 8px;background:#f8f9fa;}
+      .box h2{margin:0 0 4px;font-size:9px;color:#0f2a44;text-transform:uppercase;letter-spacing:.4px;}
+      .row{display:flex;justify-content:space-between;padding:2px 0;font-size:8.5px;border-bottom:1px dotted #e0e0e0;}
+      .row:last-child{border-bottom:none;}
+      .row .lbl{color:#555;}
+      .row .val{font-weight:600;color:#111;}
+      .leyenda{display:flex;flex-wrap:wrap;gap:4px 16px;margin:4px 0;}
+      .ftr{border-top:1px solid #ddd;margin-top:8px;padding-top:4px;text-align:center;font-size:7px;color:#999;}
     </style></head><body>
       <div class="head">
-        <div><h1>Geoportal · Gestión Catastral y Redes</h1><div style="font-size:6.5px;color:#888">Ficha técnica — vista actual del mapa</div></div>
-        <div class="meta">${new Date().toLocaleDateString('es-EC',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+        <h1>Geoportal · Gestión Catastral y Redes</h1>
+        <p>${new Date().toLocaleDateString('es-EC',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}</p>
       </div>
       <div class="map-wrap"><img src="${mapDataUrl}" alt="Mapa"></div>
       <div class="grid">
         <div class="box">
-          <h2>Referencia espacial</h2>
-          <div class="row"><span class="lbl">Datum</span><span class="val">WGS84</span></div>
-          <div class="row"><span class="lbl">Sistema</span><span class="val">UTM</span></div>
-          <div class="row"><span class="lbl">Zona</span><span class="val">${cUtm.zone}</span></div>
-          <div class="row"><span class="lbl">Meridiano central</span><span class="val">${(parseInt(cUtm.zone)-1)*6-180+3}°</span></div>
-          <div class="row"><span class="lbl">Factor escala</span><span class="val">0.9996</span></div>
-        </div>
-        <div class="box">
-          <h2>Extent</h2>
-          <div class="row"><span class="lbl">Centro</span><span class="val">${cUtm.zone} ${cUtm.x} ${cUtm.y}</span></div>
+          <h2>Ubicación</h2>
+          <div class="row"><span class="lbl">Centro UTM</span><span class="val">${cUtm.zone} ${cUtm.x} ${cUtm.y}</span></div>
           <div class="row"><span class="lbl">Esquina SO</span><span class="val">${swUtm.zone} ${swUtm.x} ${swUtm.y}</span></div>
           <div class="row"><span class="lbl">Esquina NE</span><span class="val">${neUtm.zone} ${neUtm.x} ${neUtm.y}</span></div>
-          <div class="row"><span class="lbl">Zoom</span><span class="val">${zoom}</span></div>
-          <div class="row"><span class="lbl">Features totales</span><span class="val">${allCount}</span></div>
+          <div class="row"><span class="lbl">Zoom / Features</span><span class="val">${zoom} / ${allCount}</span></div>
+        </div>
+        <div class="box">
+          <h2>Mediciones</h2>
+          ${statsHtml}
         </div>
       </div>
-      <div class="box" style="margin-top:2px">
+      <div class="box">
         <h2>Capas visibles</h2>
-        <div style="display:flex;flex-wrap:wrap;gap:4px 14px;margin:3px 0">${legendHtml}</div>
+        <div class="leyenda">${legendHtml}</div>
       </div>
-      <div class="ftr">Geoportal · Supabase / PostGIS · UTM WGS84 · ${new Date().toISOString().slice(0,10)}</div>
+      <div class="ftr">Generado desde Supabase/PostGIS · UTM WGS84 · ${new Date().toISOString().slice(0,10)}</div>
       <script>window.onload=function(){window.print();}<\/script>
     </body></html>`;
 
