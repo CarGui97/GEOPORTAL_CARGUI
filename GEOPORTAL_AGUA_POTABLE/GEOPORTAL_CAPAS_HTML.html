@@ -181,9 +181,9 @@
     gap:8px;
   }
   .layer-meta .count{color:var(--text-dim);}
-  .layer-meta .state-ok::before{content:"● ";color:#7cb87f;}
-  .layer-meta .state-err::before{content:"● ";color:var(--danger);}
-  .layer-meta .state-wait::before{content:"● ";color:var(--text-faint);}
+  .layer-meta .state-ok{color:#4d8f50;}
+  .layer-meta .state-err{color:var(--danger);}
+  .layer-meta .state-wait{color:var(--text-faint);}
 
   .opacity-row{
     display:flex;
@@ -899,8 +899,8 @@ LAYERS.forEach(def => {
         <button class="zoom-layer-btn" data-table="${def.table}" title="Zoom a esta capa">◎</button>
       </div>
       <div class="layer-meta">
-        <span class="state-wait" id="state-${def.table}">en espera</span>
-        <span class="count" id="count-${def.table}">—</span>
+        <span class="state-wait" id="state-${def.table}">Pendiente</span>
+        <span class="count" id="count-${def.table}">0</span>
       </div>
     </div>
   `;
@@ -1045,7 +1045,7 @@ async function fetchTable(tableName, limit){
 let loadedCount = 0;
 async function loadAll(){
   const limit = 2500;
-  setStatus('wait', 'Conectando a Supabase…');
+  setStatus('wait', 'Conectando con Supabase…');
   document.getElementById('mapEmpty').style.display = 'flex';
   document.getElementById('emptyMsg').textContent = 'Cargando las 6 capas desde Supabase…';
   document.getElementById('reloadBtn').disabled = true;
@@ -1058,8 +1058,8 @@ async function loadAll(){
     if (s.geojsonLayer) map.removeLayer(s.geojsonLayer);
     s.geojsonLayer = null; s.rows = []; s.featureCount = 0;
     document.getElementById(`state-${s.def.table}`).className = 'state-wait';
-    document.getElementById(`state-${s.def.table}`).textContent = 'cargando…';
-    document.getElementById(`count-${s.def.table}`).textContent = '—';
+    document.getElementById(`state-${s.def.table}`).textContent = 'Cargando…';
+    document.getElementById(`count-${s.def.table}`).textContent = '0';
   });
 
   const ordered = [...LAYERS].sort((a,b) => a.order - b.order);
@@ -1106,8 +1106,8 @@ async function loadAll(){
       state[def.table].featureCount = features.length;
 
       stateEl.className = 'state-ok';
-      stateEl.textContent = features.length > 0 ? 'ok' : 'sin geometría';
-      countEl.textContent = `${rows.length} filas`;
+      stateEl.textContent = features.length > 0 ? 'Lista' : 'Sin geometría';
+      countEl.textContent = `${rows.length} registros`;
 
       /* Calculate stats */
       if (features.length > 0){
@@ -1133,8 +1133,8 @@ async function loadAll(){
     } catch(e){
       errors.push(`${def.label}: ${e.message}`);
       stateEl.className = 'state-err';
-      stateEl.textContent = 'error';
-      countEl.textContent = '—';
+      stateEl.textContent = 'Error';
+      countEl.textContent = '0';
     }
     loadedCount = idx + 1;
     setProgress((loadedCount / totalLayers) * 100);
