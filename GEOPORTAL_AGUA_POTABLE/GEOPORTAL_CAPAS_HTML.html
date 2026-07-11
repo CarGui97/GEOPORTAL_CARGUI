@@ -575,7 +575,7 @@
       <div class="stat-grid" id="statsGrid">
         <div class="stat-card"><div class="val ag" id="statAgua">—</div><div class="lbl">Agua potable</div></div>
         <div class="stat-card"><div class="val al" id="statAlcant">—</div><div class="lbl">Alcantarillado</div></div>
-        <div class="stat-card"><div class="val el" id="statElect">—</div><div class="lbl">Energía eléctrica</div></div>
+        <div class="stat-card"><div class="val el" id="statElect">—</div><div class="lbl">Red Energía Eléctrica</div></div>
         <div class="stat-card"><div class="val br" id="statBasura">—</div><div class="lbl">Rec. basura</div></div>
         <div class="stat-card"><div class="val vl" id="statVial">—</div><div class="lbl">Red vial</div></div>
         <div class="stat-card"><div class="val ct" id="statCatastro">—</div><div class="lbl">Catastro (ha)</div></div>
@@ -683,7 +683,7 @@ const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 const LAYERS = [
   { table:'agua_potable_wgs84',          label:'Agua Potable',           geomType:'line',    color:'#5fb3d9', weight:2.6, dash:null,   fill:false, fillOpacity:0,   order:0 },
   { table:'catastro_rural_wgs84',        label:'Catastro Rural',         geomType:'polygon', color:'#d97757', weight:1.2, dash:null,   fill:true,  fillOpacity:.16, order:1 },
-  { table:'energia_electrica_wgs84',     label:'Energía Eléctrica',      geomType:'line',    color:'#f2c14e', weight:2,   dash:'8,3',  fill:false, fillOpacity:0,   order:2 },
+  { table:'Red_Energia_Electrica',     label:'Red Energía Eléctrica',      geomType:'line',    color:'#f2c14e', weight:2,   dash:'8,3',  fill:false, fillOpacity:0,   order:2 },
   { table:'recoleccion_basura_wgs84',    label:'Recolección Basura',     geomType:'line',    color:'#7cb87f', weight:2,   dash:'1,5',  fill:false, fillOpacity:0,   order:3 },
   { table:'red_alcantarillado_wgs84',    label:'Alcantarillado',         geomType:'line',    color:'#b98a5e', weight:2.2, dash:'4,4',  fill:false, fillOpacity:0,   order:4 },
   { table:'red_vial_cantonal_wgs84',     label:'Red Vial Cantonal',      geomType:'line',    color:'#e8e3d6', weight:1.6, dash:null,   fill:false, fillOpacity:0,   order:5 },
